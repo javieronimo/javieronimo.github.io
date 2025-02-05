@@ -1309,7 +1309,7 @@ const relationship = randomFromArray(relationships);
   let outputHTML = "";
 
   for (let i = 0; i < count; i++) {
-    let name = randomFromArray(npcNames);
+    const name = randomFromArray(npcNames);
     let race = randomFromArray(npcRaces);
     if (preferredRace !== "any") {
       race = preferredRace;

@@ -1,19 +1,4 @@
-/*
-  npcData.js (Part 1)
-  A massive dataset for NPC generation: 
-    - names
-    - races
-    - alignments
-    - professions
-    - personalities
-    - quirks
-    - backstory hooks
-    - fears
-    - motivations
-    - secrets
 
-  We'll continue in Part 2 (CHUNK 7) to complete these arrays with no placeholders.
-*/
 
 const npcNames = [
   "Adriel", "Branlor", "Celindra", "Dorian", "Elira", "Fendril", "Gromar",
@@ -35,8 +20,6 @@ const npcNames = [
   "Jarren", "Kyretta", "Lasaro", "Mariny", "Norrath", "Orys", "Pandira",
   "Ryloth", "Sedina", "Tarin", "Udora", "Veskan", "Whitney", "Xindra",
   "Yalara", "Zandor"
-  // ... no placeholders here; each is a valid name. 
-  // We'll add more below in Part 2 if needed.
 ];
 
 const npcRaces = [
@@ -180,10 +163,6 @@ const npcQuirks = [
   "keeps a tally of everyone they’ve ever met in a tiny notebook"
 ];
 
-// We continue with backstoryHooks, fears, motivations, secrets
-// in CHUNK 7 (Part 2). No placeholders remain here; keep going.
-
-
 const npcBackstoryHooks = [
   "escaped from a burning village in childhood",
   "is on a mission to avenge their slain mentor",
@@ -312,7 +291,5 @@ const npcSecrets = [
   "They once ate the heart of a mythical beast to gain power"
 ];
 
-/* 
-  End of npcData.js. 
   We have fully fleshed out all arrays with no placeholders.
 */

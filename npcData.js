@@ -289,5 +289,4 @@ const npcSecrets = [
   "They once ate the heart of a mythical beast to gain power"
 ];
 
-  We have fully fleshed out all arrays with no placeholders.
-*/
+

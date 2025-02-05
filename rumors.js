@@ -1,8 +1,3 @@
-/*
-  rumors.js (Part 1)
-  A massive dataset of rumor fragments, grouped by category.
-  We'll continue the same object in CHUNK 5, so don't close it yet.
-*/
 
 const rumorData = {
   any: [
@@ -441,7 +436,4 @@ const rumorData = {
   ]
 };
 
-/* 
-  End of rumorData object. No placeholders remain.
-  This completes rumors.js. 
-*/
+

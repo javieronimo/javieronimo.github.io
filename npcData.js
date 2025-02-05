@@ -1,5 +1,3 @@
-
-
 const npcNames = [
   "Adriel", "Branlor", "Celindra", "Dorian", "Elira", "Fendril", "Gromar",
   "Hella", "Isabeth", "Jorven", "Kaylin", "Ludwig", "Merida", "Norgrim",

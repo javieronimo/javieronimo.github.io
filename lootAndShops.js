@@ -103,14 +103,7 @@ const rareLootTable = [
   "Rod of the Pact Keeper +1"
 ];
 
-/* ==================== SHOP ITEMS WITH PRICES ===================== 
-   Format: 
-   {
-     name: string,
-     price: string (like "2 gp", "50 cp", etc.),
-     description: short string
-   }
-*/
+/* ==================== SHOP ITEMS WITH PRICES ===================== */
 
 const shopItems = {
   general: {

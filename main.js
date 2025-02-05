@@ -1,13 +1,3 @@
-/*
-  main.js
-  -------------------------------------------------------
-  Core logic for:
-    1) Tab handling
-    2) Encounter generation (with CR or party-based difficulty)
-    3) Rumor generation (with categories)
-    4) Shop inventory (including item names, prices, descriptions)
-    5) NPC generation (race, alignment, profession, extended details)
-*/
 
 /* ================ TAB HANDLING ================ */
 function openTab(tabId) {
@@ -730,47 +720,39 @@ const dungeonMutations = [
 ];
 
 
-/***************************************************
- * Utility function to distribute monsters randomly
- * among rooms without exceeding monsterCount total
- * and monstersPerRoom per room.
- ***************************************************/
 function distributeMonstersRandomly(monsterCount, monstersPerRoom, totalRooms, availableMonsters) {
-  // Create an array of length totalRooms, each an empty array for holding monster objects
+ 
   let roomAssignments = new Array(totalRooms).fill(null).map(() => []);
 
   let placedMonsters = 0;
 
-  // Keep placing monsters until we reach monsterCount or can’t place anymore
+  
   while (placedMonsters < monsterCount) {
-    // Pick a random room
+    
     let randomRoomIndex = Math.floor(Math.random() * totalRooms);
 
-    // Check if that room is already at max capacity
+    
     if (roomAssignments[randomRoomIndex].length < monstersPerRoom) {
-      // Pick a random monster from the available list
+      
       let chosenMonster = randomFromArray(availableMonsters);
       roomAssignments[randomRoomIndex].push(chosenMonster);
       placedMonsters++;
     } else {
-      // If that room is full, see if *all* rooms are full
+      
       const allFull = roomAssignments.every(
         roomArr => roomArr.length >= monstersPerRoom
       );
       if (allFull) {
-        // Cannot place any more monsters anywhere
+        
         break;
       }
-      // Otherwise, just continue and try again
-      // (the while loop will pick a new randomRoomIndex next iteration)
+      
     }
   }
   return roomAssignments;
 }
 
-/***************************************************
- * The main dungeon generator function
- ***************************************************/
+
 function generateDungeon() {
   const size = document.getElementById("dungeonSize").value;
   const numLevels = parseInt(document.getElementById("numLevels").value, 10);
@@ -781,27 +763,27 @@ function generateDungeon() {
   const monstersPerRoom = parseInt(document.getElementById("monstersPerRoom").value, 10);
   const maxCR = parseInt(document.getElementById("challengeRating").value, 10);
 
-  // New: read the environment selection (or "any")
+ 
   const environment = document.getElementById("dungeonEnvironment").value;
 
-  // Decide which monsters to filter in
+  
   let availableMonsters;
   if (environment === "any") {
-    // Filter by CR only
+    
     availableMonsters = monsterData.filter(m => m.cr <= maxCR);
   } else {
-    // Filter by CR and environment
+    
     availableMonsters = monsterData.filter(
       m => m.cr <= maxCR && m.environments.includes(environment)
     );
   }
 
-  // Fallback if none found in that environment
+ 
   if (availableMonsters.length === 0) {
     availableMonsters = monsterData.filter(m => m.cr <= maxCR);
   }
 
-  // Distribute monsters randomly across the total rooms
+  
   const roomAssignments = distributeMonstersRandomly(
     monsterCount,
     monstersPerRoom,
@@ -809,19 +791,19 @@ function generateDungeon() {
     availableMonsters
   );
 
-  // Checkboxes
+  
   const includePuzzles = document.getElementById("includePuzzles").checked;
   const includeTraps = document.getElementById("includeTraps").checked;
   const includeHiddenPassages = document.getElementById("includeHiddenPassages").checked;
 
-  // Start building dungeon description
+  
   let dungeonDescription = `<h2>Generated Dungeon</h2>`;
   dungeonDescription += `<p><strong>Size:</strong> ${size.toUpperCase()}</p>`;
   dungeonDescription += `<p><strong>Levels:</strong> ${numLevels}</p>`;
   dungeonDescription += `<p><strong>Total Rooms:</strong> ${totalRooms} (About ${roomsPerLevel} per level)</p>`;
   dungeonDescription += `<p><strong>Monsters:</strong> ${monsterCount} total (Up to ${monstersPerRoom} per room)</p>`;
 
-  // Add random theme, faction, mutation
+  
   let theme = randomFromArray(dungeonThemes);
   dungeonDescription += `<h3>Dungeon Theme:</h3><p>${theme}</p>`;
 
@@ -833,52 +815,49 @@ function generateDungeon() {
 
   dungeonDescription += `<h3>Rooms & Encounters</h3>`;
 
-  /***************************************************
-   * Output each level + each room. We pull the
-   * monster assignments from our random distribution.
-   ***************************************************/
-  let roomIndex = 0; // Will track which room (0-based) we’re on overall
+ 
+  let roomIndex = 0; 
   for (let level = 1; level <= numLevels; level++) {
     dungeonDescription += `<h2>Level ${level}</h2>`;
 
     for (let i = 1; i <= roomsPerLevel; i++) {
-      // Random room description
+
       const roomDescription = randomFromArray(dungeonRooms);
 
-      // Start a small container for each room
+      
       dungeonDescription += `<div style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">`;
       dungeonDescription += `<p><strong>Room ${i}:</strong> ${roomDescription}</p>`;
 
-      // Possibly puzzle
+      
       if (includePuzzles && Math.random() < 0.2) {
         let puzzle = randomFromArray(dungeonPuzzles);
         dungeonDescription += `<p><strong>Puzzle:</strong> ${puzzle}</p>`;
       }
 
-      // Monsters assigned to this room (randomly done above)
+      
       const monstersHere = roomAssignments[roomIndex];
       if (monstersHere && monstersHere.length > 0) {
-        // Format them e.g. "Goblin (CR 0.25), Rat (CR 0)"
+        
         const monsterStrings = monstersHere.map(m => `${m.name} (CR ${m.cr})`);
         dungeonDescription += `<p><strong>Monsters:</strong> ${monsterStrings.join(", ")}</p>`;
       }
 
- // 1) Sum XP of these monsters
+ 
 	 let roomXp = 0;
 	 for (let j = 0; j < monstersHere.length; j++) {
 	  roomXp += (monstersHere[j].xp || 0);
 	 }	
 
-	 // 2) Display it:
+	 
 	 dungeonDescription += `<p><strong>XP if cleared:</strong> ${roomXp}</p>`;
 
-      // Possibly traps
+      
       if (includeTraps && Math.random() < 0.3) {
         let trap = randomFromArray(dungeonTraps);
         dungeonDescription += `<p><strong>Trap:</strong> ${trap}</p>`;
       }
 
-      // Possibly hidden passage
+      
       if (includeHiddenPassages && Math.random() < 0.3) {
         let hiddenDoor = randomFromArray(dungeonRooms);
         let triggers = [
@@ -891,13 +870,13 @@ function generateDungeon() {
         dungeonDescription += `<p><strong>Hidden Passage:</strong> Leads to ${hiddenDoor} (${randomFromArray(triggers)})</p>`;
       }
 
-      dungeonDescription += `</div>`; // close room container
+      dungeonDescription += `</div>`; 
 
-      roomIndex++; // move to the next overall room
+      roomIndex++; 
     }
   }
 
-  // Finally set the HTML
+  
   document.getElementById("dungeonResult").innerHTML = dungeonDescription;
 }
 
@@ -906,7 +885,7 @@ function generateDungeon() {
 
 /* ================ ENCOUNTER GENERATION ================ */
 
-// Toggle CR / Party input
+
 document.getElementById("generationMethod").addEventListener("change", function() {
   const method = this.value;
   const crDiv = document.getElementById("crInputDiv");
@@ -920,12 +899,7 @@ document.getElementById("generationMethod").addEventListener("change", function(
   }
 });
 
-/*
-  Calculate approximate CR from party info + desired difficulty.
-  A more detailed formula than the simplest approach:
-    - baseCR = (partyLevel * partySize) / 4
-    - difficulty modifies this: (easy=0.75, medium=1, hard=1.25, deadly=1.5)
-*/
+
 function calcCRFromParty(partySize, partyLevel, difficulty) {
   let baseCR = (partyLevel * partySize) / 4;
   let multiplier = 1;
@@ -944,7 +918,7 @@ function randomFromArray(arr) {
   return arr[randInt(arr.length)];
 }
 
-// Generate city name if none provided
+
 function generateCityName() {
   const starts = [
     "Ald", "Ber", "Cen", "Dor", "El", "Fal", "Gar", "Hild", "Ir",
@@ -959,12 +933,7 @@ function generateCityName() {
   return randomFromArray(starts) + randomFromArray(ends);
 }
 
-/*
-  findMonstersByEnvironmentAndCR:
-  - environment: string
-  - desiredCR: number
-  - allowMixed: "yes" or "no"
-*/
+
 function findMonstersByEnvironmentAndCR(environment, desiredCR, allowMixed) {
   let lower = Math.max(0, desiredCR * 0.5);
   let upper = desiredCR * 1.5;
@@ -975,7 +944,7 @@ function findMonstersByEnvironmentAndCR(environment, desiredCR, allowMixed) {
 
   let possible = [];
   if (environment === "any") {
-    // Include all environments
+   
     possible = monsterData.filter(m => m.cr >= lower && m.cr <= upper);
   } else {
     possible = monsterData.filter(m => m.environments.includes(environment) && m.cr >= lower && m.cr <= upper);
@@ -983,13 +952,7 @@ function findMonstersByEnvironmentAndCR(environment, desiredCR, allowMixed) {
 
   return possible.length > 0 ? possible : monsterData.filter(m => m.cr >= lower && m.cr <= upper);
 }
-/*
-  generateMonsterEncounter:
-  - environment: string
-  - desiredCR: number
-  - allowMixed: "yes" or "no"
-  - monsterCount: integer (1-6)
-*/
+
 
 function generateMonsterEncounter(environment, desiredCR, allowMixed, monsterCount) {
   const possibleMonsters = findMonstersByEnvironmentAndCR(environment, desiredCR, allowMixed);
@@ -997,16 +960,16 @@ function generateMonsterEncounter(environment, desiredCR, allowMixed, monsterCou
     return {
       monsters: [],
       encounterDescription: "No suitable monsters found for that CR/environment.",
-      totalXp: 0 // <-- comma added, and totalXp is 0 if no monsters
+      totalXp: 0 
     };
   }
 
   let chosen = [];
-  let totalXp = 0; // <-- define totalXp
+  let totalXp = 0; 
   for (let i = 0; i < monsterCount; i++) {
     const monster = randomFromArray(possibleMonsters);
     chosen.push(monster);
-    totalXp += (monster.xp || 0); // add XP
+    totalXp += (monster.xp || 0); 
   }
 
     const descriptions = [
@@ -1027,18 +990,10 @@ function generateMonsterEncounter(environment, desiredCR, allowMixed, monsterCou
   return {
     monsters: chosen,
     encounterDescription: randomFromArray(descriptions),
-    totalXp: totalXp // <-- return totalXp
+    totalXp: totalXp 
   };
 }
 
-
-/*
-  generateLoot:
-  - monsters: array of monster objects
-  - lootRarity: "commonOnly" or "includeRare"
-  Picks some monster-specific loot + random from common table,
-  optionally includes a chance for rare items.
-*/
 function generateLoot(monsters, lootRarity, includeCursed) {
   let combinedLoot = [];
   monsters.forEach(m => {
@@ -1075,7 +1030,7 @@ function generateLoot(monsters, lootRarity, includeCursed) {
 }
 
 function generateEncounter() {
-  // 1) Read the form inputs
+  
   const method       = document.getElementById("generationMethod").value;
   const environment  = document.getElementById("environmentSelect").value;
   let cityName       = document.getElementById("cityNameInput").value.trim();
@@ -1084,7 +1039,7 @@ function generateEncounter() {
   const allowMixed   = document.getElementById("allowMixedCR").value;
   const monsterCount = parseInt(document.getElementById("monsterCount").value, 10);
 
-  // 2) Determine desired CR
+  
   let desiredCR = 1;
   if (method === "cr") {
     desiredCR = parseFloat(document.getElementById("crValue").value);
@@ -1095,21 +1050,21 @@ function generateEncounter() {
     desiredCR  = calcCRFromParty(size, lvl, diff);
   }
 
-  // 3) If no city name, generate one
+ 
   if (!cityName) {
     cityName = generateCityName();
   }
 
-  // 4) Filter monsters by environment + CR
+  
   const possibleMonsters = findMonstersByEnvironmentAndCR(environment, desiredCR, allowMixed);
   if (possibleMonsters.length === 0) {
-    // If no suitable monsters, just show a message
+   
     document.getElementById("encounterResult").innerHTML = 
       `<p>No suitable monsters found for CR ${desiredCR.toFixed(2)} in ${environment}.</p>`;
     return;
   }
 
-  // 5) Actually pick the monsters
+  
   let chosen    = [];
   let totalXp   = 0;
   for (let i = 0; i < monsterCount; i++) {
@@ -1118,7 +1073,7 @@ function generateEncounter() {
     totalXp += (monster.xp || 0);
   }
 
-  // 6) Build display strings
+  
   const monsterNames = chosen.map(m => m.name).join(", ") || "None";
   
 
@@ -1227,16 +1182,14 @@ const encounterDescriptions = [
 ];
 
 let desc = randomFromArray(encounterDescriptions);
-  // 7) Generate loot from chosen monsters
+ 
   const loot = generateLoot(chosen, lootRarity, false); 
-  // ^ if you have a "cursed loot" checkbox, pass it as 3rd param, e.g. includeCursed
-
-  // 8) Optional party class flavor
+ 
   let classFlavor = partyClasses
     ? `Party includes: ${partyClasses}. `
     : "No specific classes given. ";
 
-  // 9) Build HTML output
+  
   let output = `<p><strong>Environment:</strong> ${environment}</p>`;
   output += `<p><strong>City (flavor):</strong> ${cityName}</p>`;
   output += `<p><strong>Party Class Info:</strong> ${classFlavor}</p>`;
@@ -1247,17 +1200,17 @@ let desc = randomFromArray(encounterDescriptions);
   output += `<p><strong>Loot Found:</strong></p><ul>`;
 
   loot.forEach(item => {
-    // If your loot array is just strings, do:
+   
     if (typeof item === "string") {
       output += `<li>${item}</li>`;
     } else {
-      // If there's an object with .name and .description
+     
       output += `<li><strong>${item.name}</strong>: ${item.description}</li>`;
     }
   });
   output += `</ul>`;
 
-  // 10) Finally, place it in the page
+  
   document.getElementById("encounterResult").innerHTML = output;
 }
 /* ================ RUMOR GENERATION ================ */
@@ -1282,9 +1235,7 @@ function generateRumor() {
   document.getElementById("rumorResult").innerHTML = rumor;
 }
 
-/*
-  getAllRumors() merges all rumor arrays from rumorData for 'any' usage
-*/
+
 function getAllRumors() {
   let all = [];
   for (let cat in rumorData) {
@@ -1302,7 +1253,7 @@ function generateShopInventory() {
   let items = [];
   
   if (shopType === "any") {
-    // Combine all shop types
+    
     for (let key in shopItems) {
       if (shopItems[key][shopQuality]) {
         items = items.concat(shopItems[key][shopQuality]);
@@ -1311,7 +1262,7 @@ function generateShopInventory() {
   } else if (shopItems[shopType] && shopItems[shopType][shopQuality]) {
     items = shopItems[shopType][shopQuality];
   } else {
-    items = shopItems["general"]["average"]; // Fallback shop
+    items = shopItems["general"]["average"]; 
   }
 
   const inventoryCount = Math.max(3, randInt(items.length) + 1);
@@ -1365,8 +1316,7 @@ const relationship = randomFromArray(relationships);
     }
     let alignment = randomFromArray(npcAlignments);
     if (preferredAlignment !== "any") {
-      // We can do a more refined approach if we want to match exactly, 
-      // but this is a simple fallback approach:
+     
       alignment = npcAlignments.find(a => a.toLowerCase().includes(preferredAlignment)) || alignment;
     }
     let profession = preferredProfession || randomFromArray(npcProfessions);
